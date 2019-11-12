@@ -1,0 +1,60 @@
+version: '3.7'
+
+services:
+  # =======================================
+  # == API (Node)
+  # =======================================
+  projet-webservices-api:
+    container_name: projet-webservices-api
+    hostname: projet-webservices-api
+    build:
+      context: ./api/
+      dockerfile: Dockerfile
+    image: projet-webservices-api:1.0.0
+    restart: unless-stopped
+    volumes:
+      - ./api:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3005:3005"
+    depends_on:
+      - projet-webservices-database
+    command: npm run dev
+
+  # =======================================
+  # == FRONT (Vue.js)
+  # =======================================
+  projet-webservices-front:
+    container_name: projet-webservices-front
+    hostname: projet-webservices-front
+    build:
+      context: ./front/
+      dockerfile: Dockerfile
+    image: projet-webservices-front:1.0.0
+    restart: unless-stopped
+    volumes:
+      - ./front:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "8080:8080"
+    depends_on:
+      - projet-webservices-api
+      - projet-webservices-database
+    command: npm run serve
+
+  # =======================================
+  # == DATABASE (MongDB)
+  # =======================================
+  projet-webservices-database:
+    container_name: projet-webservices-database
+    hostname: projet-webservices-database
+    image: mongo:3.6
+    restart: on-failure
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: webservices
+      MONGO_INITDB_ROOT_USERNAME: username
+      MONGO_INITDB_ROOT_PASSWORD: password
