@@ -1,19 +1,17 @@
 const CustomerModel = require('../models/customer.model')
 
-// ================================================
-//  == Methods
-// ================================================
-
-exports.search = async (search) => {
-  const customers = await CustomerModel.find(search).lean()
-  return customers
-}
 
 // ================================================
 //  == Getters
 // ================================================
 
-exports.findAll = async (search) => {
-  const customers = await CustomerModel.find({}).lean()
+exports.findAll = async (search = {}) => {
+  const customers = await CustomerModel.find(
+    search,
+    { score: { $meta: 'textScore' } } // "matching %" score
+  )
+  .sort( { score: { $meta: "textScore" } } ) // scrt by "best matches"
+  .lean()
+
   return customers
 }

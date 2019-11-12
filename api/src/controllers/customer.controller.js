@@ -10,8 +10,19 @@ exports.getAll = async (req, res) => {
 
 // search some customers
 exports.search = async (req, res) => {
-  const search = req.body
-  const customers = await CustomerService.search(search)
+  const query = req.query.search
+
+  // const page = req.query.page || 1
+  // const limit = req.query.limit || 25
+
+  const customers = await CustomerService.findAll({
+    $text: { 
+      $search: query,
+      $caseSensitive: false,
+        $diacriticSensitive: false
+    }
+  })
+
   return res.status(200).json({
     customers
   })
