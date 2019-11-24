@@ -63,13 +63,7 @@ export default {
         { key: 'street', label: 'Adresse' },
         { key: 'guid', label: 'guid' }
       ],
-      items: [
-        { guid: 40, first: 'Dickerson', last: 'Macdonald', street: 'Adresse', city: 'City', zip: 'ZIP' },
-        { guid: 21, first: 'Larsen', last: 'Shaw', street: 'Adresse', city: 'City', zip: 'ZIP' },
-        { guid: 89, first: 'Geneva', last: 'Wilson', street: 'Adresse', city: 'City', zip: 'ZIP' },
-        { guid: 38, first: 'Jami', last: 'Carney', street: 'Adresse', city: 'City', zip: 'ZIP' },
-        { guid: 39, first: 'Arsene', last: 'Dupont', street: 'Adresse', city: 'City', zip: 'ZIP' }
-      ]
+      items: []
     }
   },
   computed: {
@@ -77,19 +71,16 @@ export default {
       return this.items.length
     }
   },
-  mounted () {
-    // fetch l'api avec les "perPage" premiers résultats classés par ordre alphabétique des noms de famille
-    axios.get('http://localhost:3005/v1/customers/search?search=Eugene').then(res => {
-      console.log(res.data)
-      this.items = res.data.customers
-    })
-  },
   methods: {
     handleSearchChange () {
-      console.log('handling change')
       axios.get(`http://localhost:3005/v1/customers/search?search=${this.searchQuery}`).then(res => {
-        console.log(res.data)
         this.items = res.data.customers
+        this.$ga.event({
+          eventCategory: 'category',
+          eventAction: 'customer_search',
+          eventLabel: this.searchQuery,
+          eventValue: res.data.customers.length
+        })
       })
     }
   }
