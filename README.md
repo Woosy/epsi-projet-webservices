@@ -7,9 +7,9 @@
 ## Table des matières
 
 1. [Choix des technologies](#choix-des-technologies)
-    - Choix du SGBD
-    - Choix technologie du backend
-    - Choix technologie du frontend
+    - [Choix du SGBD](#choix-du-sgbd)
+    - [Choix technologie backend](#choix-technologie-backend)
+    - [Choix technologie frontend](#choix-technologie-frontend)
 2. [Mise en place du backend](#mise-en-place-du-backend)
 3. [Mise en place du frontend](#mise-en-place-du-frontend)
 4. [Installation](#installation)
@@ -45,13 +45,13 @@ Je me suis donc tourné vers MongoDB car :
 - plus rapide que les SGBD relationnels sur les gros volumes de données
 - possibilité de recherche textuels avancés via la création d'index
 
-### Choix de la technologie du backend
+### Choix technologie backend
 
 Je me suis orienté vers un backend Node avec express.js pour les raisons suivantes :
 - affinité & expérience
 - rapidité de mise en place 
 
-### Choix de la technologie du front
+### Choix technologie frontend
 
 Je me suis orienté vers Vue.js pour les raisons suivantes :
 - affinité & expérience
