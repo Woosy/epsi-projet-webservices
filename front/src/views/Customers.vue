@@ -63,7 +63,10 @@ export default {
         { key: 'street', label: 'Adresse' },
         { key: 'guid', label: 'guid' }
       ],
-      items: []
+      items: [],
+
+      // initialize cache from localStorage
+      cache: JSON.parse(localStorage.getItem('projet-webservices.cache')) || []
     }
   },
   computed: {
@@ -73,14 +76,35 @@ export default {
   },
   methods: {
     handleSearchChange () {
-      axios.get(`http://localhost:3005/v1/customers/search?search=${this.searchQuery}`).then(res => {
+      const query = this.searchQuery
+
+      // if query's result is in cache
+      const result = this.cache.find(item => item.query === query)
+      if (result) {
+        this.items = result.items
+        return
+      }
+
+      // otherwise, query the API and store the response in the cache
+      axios.get(`http://localhost:3005/v1/customers/search?search=${query}`).then(res => {
         this.items = res.data.customers
+
+        // google analytics
         this.$ga.event({
           eventCategory: 'category',
           eventAction: 'customer_search',
-          eventLabel: this.searchQuery,
+          eventLabel: query,
           eventValue: res.data.customers.length
         })
+
+        // update the cache
+        this.cache.push({ query, items: res.data.customers })
+        try {
+          localStorage.setItem('projet-webservices.cache', JSON.stringify(this.cache))
+        } catch (err) {
+          console.error(err)
+          console.alert('LocalStorage might be full')
+        }
       })
     }
   }
