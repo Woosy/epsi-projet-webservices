@@ -12,7 +12,11 @@
     - [Choix technologie frontend](#choix-technologie-frontend)
 2. [Mise en place du backend](#mise-en-place-du-backend)
 3. [Mise en place du frontend](#mise-en-place-du-frontend)
-4. [Installation](#installation)
+4. [Challenges](#challenges)
+    - Challenge n°1 ~ Recherche en moins de 3 secondes
+    - Challenge n°2 ~ Intérruption de service
+    - Challenge n°3 ~ Analytics
+5. [Installation](#installation)
 
 
 ---
@@ -81,6 +85,75 @@ J'ai utilisé le [CLI officiel de Vue](https://cli.vuejs.org/) qui m'a permis, v
 
 J'ai ensuite rajouté la librairie [axios](https://github.com/axios/axios) pour faire toutes mes requêtes HTTP à mon API.
 Grâce à mes appels AJAX & à Vue, mon application est dynamique sans occasionner aucun rechargement de la page principale.
+
+
+---
+
+
+## Challenges
+
+### Challenge n°1 ~ Recherche en moins de 3 secondes
+
+Ce challenge est réalisé par le simple choix des technologies utilisées :
+
+Grâce à la rapidité de Mongo, les requêtes sur chacun des champs des 500k entrées de la collection ne prennent que quelques dizaines de millisecondes !
+
+![](https://i.imgur.com/yEz4Re5.png)
+
+De plus, express gère automatiquement la mise en cache des résultats, permettant d'obtenir des temps de réponses encore plus faibles lorsque l'on fait deux fois de suite la même requête !
+
+![](https://i.imgur.com/EQMcl34.png)
+
+### Challenge n°2 ~ Intérruption de service
+
+Dans le cadre de ce challenge, j'ai implémenté un mini système de cache en me basant sur le diagramme fourni dans le cahier des charges.
+
+Son fonctionnement est le suivant :
+
+```javascript
+handleSearchChange () {
+    const query = this.searchQuery
+
+    // if query's result is in cache
+    const result = this.cache.find(item => item.query === query)
+    if (result) {
+        this.items = result.items
+        return
+    }
+
+    // otherwise, query the API and store the response in the cache
+    axios.get(`http://localhost:3005/v1/customers/search?search=${query}`).then(res => {
+    this.items = res.data.customers
+
+    // update the cache
+    this.cache.push({ query, items: res.data.customers })
+    try {
+        localStorage.setItem('projet-webservices.cache', JSON.stringify(this.cache))
+    } catch (err) {
+        console.error(err)
+        console.alert('LocalStorage might be full')
+    }
+    })
+}
+```
+
+![](https://i.imgur.com/BDXMOfi.png)
+
+### Challenge n°3 ~ Analytics
+
+Afin d'intégrer rapidement et facilement les fonctionnalités de Google Analytics, j'ai utilisé le package [vue-analytics](https://github.com/MatteoGabriele/vue-analytics).
+
+Ainsi, je n'ai qu'à rajouter le snippet suivant afin d'enregistrer la recherche ainsi que le nombre de résultats qu'elle retourne.
+(le lieu, la date, l'heure, ainsi que les informations de l'OS & du navigateur sont également enregistrées (configuration par défaut))
+
+```javascript
+this.$ga.event({
+    eventCategory: 'category',
+    eventAction: 'customer_search',
+    eventLabel: this.searchQuery,
+    eventValue: res.data.customers.length
+})
+```
 
 
 ---
