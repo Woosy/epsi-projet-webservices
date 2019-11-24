@@ -82,20 +82,14 @@ export default {
       const result = this.cache.find(item => item.query === query)
       if (result) {
         this.items = result.items
+        this.analytics(query, result.items)
         return
       }
 
       // otherwise, query the API and store the response in the cache
       axios.get(`http://localhost:3005/v1/customers/search?search=${query}`).then(res => {
         this.items = res.data.customers
-
-        // google analytics
-        this.$ga.event({
-          eventCategory: 'category',
-          eventAction: 'customer_search',
-          eventLabel: query,
-          eventValue: res.data.customers.length
-        })
+        this.analytics(query, result.items)
 
         // update the cache
         this.cache.push({ query, items: res.data.customers })
@@ -105,6 +99,16 @@ export default {
           console.error(err)
           console.alert('LocalStorage might be full')
         }
+      })
+    },
+
+    // google analytics
+    analytics (query, items) {
+      this.$ga.event({
+        eventCategory: 'category',
+        eventAction: 'customer_search',
+        eventLabel: query,
+        eventValue: items
       })
     }
   }
