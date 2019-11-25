@@ -89,7 +89,7 @@ export default {
       // otherwise, query the API and store the response in the cache
       axios.get(`http://localhost:3005/v1/customers/search?search=${query}`).then(res => {
         this.items = res.data.customers
-        this.analytics(query, result.items)
+        this.analytics(query, res.data.customers)
 
         // update the cache
         this.cache.push({ query, items: res.data.customers })
