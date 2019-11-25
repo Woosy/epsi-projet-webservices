@@ -10,6 +10,11 @@
           placeholder="Rechercher..."
           @change="handleSearchChange()"
         />
+        <div class="mb-3">
+          <small class="text-muted">
+            {{ rows }} entrées trouvées...
+          </small>
+        </div>
       </b-col>
 
       <!-- =============================== -->
@@ -17,15 +22,28 @@
       <!-- =============================== -->
       <b-col>
         <b-pagination
+          class="mb-0"
           v-model="currentPage"
           :total-rows="rows"
-          :per-page="perPage"
+          :per-page="perPage.current"
           :first-text="'1'"
-          :last-text="Math.ceil(rows / perPage).toString()"
+          :last-text="Math.ceil(rows / perPage.current).toString()"
           limit="6"
           align="fill"
           aria-controls="customers-table"
         />
+        <b-row>
+          <b-col class="my-auto">
+            Nombre de résultats par page :
+          </b-col>
+          <b-col>
+            <b-form-select
+              class="my-2"
+              v-model="perPage.current"
+              :options="perPage.options"
+            />
+          </b-col>
+        </b-row>
       </b-col>
     </b-row>
 
@@ -39,7 +57,7 @@
       striped
       :fields="fields"
       :items="items"
-      :per-page="perPage"
+      :per-page="perPage.current"
       :current-page="currentPage"
     />
   </div>
@@ -51,7 +69,10 @@ import axios from 'axios'
 export default {
   data () {
     return {
-      perPage: 15,
+      perPage: {
+        current: 15,
+        options: [5, 10, 15, 20, 25, 30, 50, 100]
+      },
       currentPage: 1,
       searchQuery: '',
 
