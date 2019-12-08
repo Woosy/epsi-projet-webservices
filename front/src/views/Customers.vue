@@ -114,13 +114,29 @@ export default {
 
         // update the cache
         this.cache.push({ query, items: res.data.customers })
-        try {
-          localStorage.setItem('projet-webservices.cache', JSON.stringify(this.cache))
-        } catch (err) {
-          console.error(err)
-          console.alert('LocalStorage might be full')
+        this.updateLocalStorage()
+
+        while (true) {
+          const hasBeenUpdated = this.updateLocalStorage()
+          if (hasBeenUpdated) break
         }
+
+        console.log('Local cache has been updated')
       })
+    },
+
+    updateLocalStorage () {
+      try {
+        localStorage.setItem('projet-webservices.cache', JSON.stringify(this.cache))
+        return true
+      } catch (err) {
+        // si une erreur est thrown, on assume que c'est un soucis de stockage
+        // (il n'existe pas de code d'erreur standardisé lorsque le localStorage,
+        // cf. https://stackoverflow.com/questions/3027142/calculating-usage-of-localstorage-space)
+        console.error('LocalStorage seems to be full, trying to remove oldest element of the cache')
+        this.cache.shift()
+        return false
+      }
     },
 
     // google analytics
