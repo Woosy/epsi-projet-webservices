@@ -111,7 +111,7 @@ Dans le cadre de ce challenge, j'ai implémenté un mini système de cache en me
 Son fonctionnement est le suivant :
 
 ```javascript
-handleSearchChange () {
+ handleSearchChange () {
     const query = this.searchQuery
 
     // if query's result is in cache
@@ -123,17 +123,33 @@ handleSearchChange () {
 
     // otherwise, query the API and store the response in the cache
     axios.get(`http://localhost:3005/v1/customers/search?search=${query}`).then(res => {
-    this.items = res.data.customers
+        this.items = res.data.customers
 
-    // update the cache
-    this.cache.push({ query, items: res.data.customers })
+        // update the cache
+        this.cache.push({ query, items: res.data.customers })
+        this.updateLocalStorage()
+
+        while (true) {
+            const hasBeenUpdated = this.updateLocalStorage()
+            if (hasBeenUpdated) break
+        }
+
+        console.log('Local cache has been updated')
+    })
+},
+
+updateLocalStorage () {
     try {
         localStorage.setItem('projet-webservices.cache', JSON.stringify(this.cache))
+        return true
     } catch (err) {
-        console.error(err)
-        console.alert('LocalStorage might be full')
+        // si une erreur est thrown, on assume que c'est un soucis de stockage
+        // (il n'existe pas de code d'erreur standardisé lorsque le localStorage,
+        // cf. https://stackoverflow.com/questions/3027142/calculating-usage-of-localstorage-space)
+        console.error('LocalStorage seems to be full, trying to remove oldest element of the cache')
+        this.cache.shift()
+        return false
     }
-    })
 }
 ```
 
